@@ -9,5 +9,6 @@
 #define VEZBE_H_
 
 void vezba1 ();
+void vezba2 ();
 
 #endif /* VEZBE_H_ */

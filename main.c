@@ -1,9 +1,8 @@
-
 #include "lib/vezbe.h"
 
 void main(void) {
-	
-	vezba1();
+
+	vezba2();
 
 	while(1);
 }
