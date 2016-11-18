@@ -8,7 +8,8 @@
 #ifndef VEZBE_H_
 #define VEZBE_H_
 
-void vezba1 ();
-void vezba2 ();
+void vezba1();
+void vezba2();
+void vezba3();
 
 #endif /* VEZBE_H_ */

@@ -55,8 +55,6 @@ void vezba1 () {  // pocetak programa
 
 // Vezba 2 - https://vlmitrovic.gitbooks.io/pdsp/content/lookup-tabele.html
 void vezba2() {
-	#define DUZ_SIG 256
-
 	int signal1[DUZ_SIG];
 	int signal2[DUZ_SIG];
 	int sig_sum[DUZ_SIG];
@@ -64,7 +62,7 @@ void vezba2() {
 	float x;
 
 	// Zadatak 1
-	initSinLookup(DUZ_TAB);  // Inicijalizacija lookup tabele;
+	initSinLookup();  // Inicijalizacija lookup tabele;
 
 	for (i=0; i<DUZ_SIG; i++) {
 		x = ((float)i/DUZ_SIG)*_2PI;
@@ -79,13 +77,37 @@ void vezba2() {
 	pojacaj(signal2, DUZ_SIG, 2./6.6);  // pripremam za izbacivanje na DAC
 	dodajDC(signal2, DUZ_SIG, (1./3.3)*32767);  // dizem za 1v
 
-	/* Zadatak 3
-	sinLookup=initQSinLookup(DUZ_TAB);  // Inicijalizacija lookup tabele;
+	// Zadatak 3
+	initQSinLookup();  // Inicijalizacija lookup tabele;
 	for (i=0; i<DUZ_SIG; i++) {
 		x = ((float)i/DUZ_SIG)*_2PI;
 		signal1[i]=lqsin(x)*32767;
 		signal2[i]=lqcos(x)*32767;
-	}*/
+	}
+
+	while(1);
+}
+
+// Vezba 3 - https://vlmitrovic.gitbooks.io/pdsp/content/slo%C5%BEeni-signali.html
+void vezba3() {
+	int signal[DUZ_SIG];
+
+	// Zadatak 1
+	// Rampa
+	ramp_sig(signal,  0, 64, 1000, RASTUCA);
+	ramp_sig(signal, 64, 64, 1000, RASTUCA);
+
+	// Zadatak 2
+	// Trougao
+	trou_sig(signal, 0, DUZ_SIG, 1000);
+	// Kvadrat, odnos signal pauza 50-50
+	kvad_sig(signal, 0, DUZ_SIG, 1000, 50);
+	// Trapez
+	trap_sig(signal, 0, DUZ_SIG, 1000);
+
+	// Zadatak 3
+	// Rampa sacinjena od 10 sinusoida
+	ramp_sin(signal, DUZ_SIG, 1000, 10, RASTUCA);
 
 	while(1);
 }

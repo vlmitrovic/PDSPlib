@@ -146,12 +146,54 @@ void initSinLookup() {
 }
 
 /*
+ * Kreiranje lookup tabele za y=sin(x) u opsegu od 0 do pi/2
+ */
+void initQSinLookup() {
+	int x;
+	float xrad;
+
+	sinLookup.duzina=DUZ_TAB;
+	if (sinLookup.duzina>0) {  // provera ispravnosti duzine niza
+		for (x=0; x<sinLookup.duzina; x++) {  // generisati tabelu za sve vrednosti x od 0 do duzine tabele
+			xrad=((float)x/(float)sinLookup.duzina)*(_PI/2.);  // pretvaranje x u opseg od 0 do 2*PI
+			sinLookup.tabela[x]=(int)(32767.*sin(xrad));  // Pretvaranje vrednosti u Q15 format i kastovanje u int
+		}
+	}
+}
+
+/*
  * Primer sin(x) funkcije koja cita iz lookup tabele, bez interpolacija
  */
 float lsin(float x) {
 	int i,y;
 	i=(int)((x/_2PI)*sinLookup.duzina);  // racuna indeks, t=396
 	y=sinLookup.tabela[i];  // uzima Q15 vrednost, t=13
+	return (float)y/32767.;  // uzima vrednost iz tabele, t=319
+}
+
+/*
+ * Funkcija koja vraca vrednost sin(x) iz lookup tabele od 0 do pi/2
+ */
+float lqsin(float x) {  // lookup 1/4 bez interpolacije
+	int i,y,ind,q;
+
+	i=(int)((x/_2PI)*(sinLookup.duzina*4))%(sinLookup.duzina*4);
+	q=sinLookup.duzina;
+
+	if (i<q) {
+		ind=i;
+		y=sinLookup.tabela[ind];
+	} else if (i<(2*q)) {
+		ind=2*q-i-1;
+		y=sinLookup.tabela[ind];
+	} else if (i<(3*q)) {
+		ind=i-2*q;
+		y=(-1)*sinLookup.tabela[ind];
+	} else if (i<(4*q)) {
+		ind=4*q-i-1;
+		y=(-1)*sinLookup.tabela[ind];
+	}
+
 	return (float)y/32767.;  // uzima vrednost iz tabele, t=319
 }
 
@@ -203,4 +245,94 @@ matrica_t pomnoziMatrice(matrica_t a, matrica_t b) {
 	return rezultat;
 }
 
+/*
+ * Funkcija koja vraca vrednost cos(x) iz lookup tabele od 0 do pi/2
+ */
+float lqcos(float x) {
+	return lqsin(x+(_PI/2.));
+}
 
+/*
+ * Signal rampe
+ *   smer = 0 - rampa opadajuca
+ *   smer = 1 - rampa rastuca
+ */
+void ramp_sig(int signal[], int start, int duzina, int amplituda, int smer) {
+	int i;
+	float delta, tmp;
+
+	delta = (float)amplituda/(float)duzina;
+
+	if (smer) tmp = 0;
+	else      tmp = amplituda;
+
+	for (i=start; i<start+duzina; i++) {
+		signal[i] = (int)tmp;
+		if (smer) tmp += delta;
+		else      tmp -= delta;
+	}
+}
+
+/*
+ * Signal trougla
+ */
+void trou_sig(int signal[], int start, int duzina, int amplituda) {
+	ramp_sig(signal,    start, duzina/2, amplituda, RASTUCA);
+	ramp_sig(signal, duzina/2, duzina/2, amplituda, OPADAJUCA);
+}
+
+/*
+ * Signal kvadrata
+ */
+void kvad_sig(int signal[], int start, int duzina, int amplituda, int duty) {
+	int i,j,tmp;
+
+	tmp = duzina*((float)(duty)/100.);
+
+	for (i=start; i<start+tmp; i++) signal[i] = amplituda;
+	for (j=i; j<start+duzina; j++) signal[j] = 0;
+}
+
+/*
+ * Signal trapeza
+ */
+void trap_sig(int signal[], int start, int duzina, int amplituda) {
+	int d=duzina/4;
+	ramp_sig(signal, start,     d,   amplituda, RASTUCA);
+	kvad_sig(signal, start+d,   d*2, amplituda, 100);
+	ramp_sig(signal, start+3*d, d,   amplituda, OPADAJUCA);
+}
+
+/*
+ * Sinusoida
+ */
+void sin_sig (int signal[], int duzina, int amplituda, int brperioda) {
+	int i;
+	double x;
+
+	for (i=0; i<duzina; i++) {
+		x = (brperioda * 6.28318 * i) / (double)duzina;
+		signal[i] = amplituda * sin(x);
+	}
+}
+
+/*
+ * Testera
+ * https://en.wikipedia.org/wiki/Sawtooth_wave
+ */
+void ramp_sin(int signal[], int duzina, int amplituda, int brHarmonika, int smer) {
+	int i, znak;
+	int tmp_sig[DUZ_SIG];
+
+	dcSignal(signal, duzina, 0);  // obrisem bafer za svaki slucaj
+	znak = -1;
+
+	for (i=0; i<brHarmonika; i++) {
+		sin_sig (tmp_sig, duzina, (znak*amplituda)/(i+1), i+1);
+		dodajSignal (signal, duzina, tmp_sig);
+		znak *= -1;
+	}
+
+	if (smer) pojacaj(signal, duzina, (-2./_PI));
+	else pojacaj(signal, duzina, 2./_PI);
+}

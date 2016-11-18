@@ -1,8 +1,5 @@
-#include "lib/vezbe.h"
+#include "lib/pdsplib.h"
 
 void main(void) {
-
-	vezba2();
-
-	while(1);
+	vezba3();
 }
