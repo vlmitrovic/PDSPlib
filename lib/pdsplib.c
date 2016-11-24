@@ -336,3 +336,43 @@ void ramp_sin(int signal[], int duzina, int amplituda, int brHarmonika, int smer
 	if (smer) pojacaj(signal, duzina, (-2./_PI));
 	else pojacaj(signal, duzina, 2./_PI);
 }
+
+// Trougao
+// https://en.wikipedia.org/wiki/Triangle_wave
+void trou_sin (int signal[], int duzina, int amplituda, int brHarmonika) {
+	int i, tmp, znak;
+	int tmp_sig[DUZ_SIG];
+
+	dcSignal(signal, duzina, 0);
+	tmp = 1;
+	znak = 1;
+
+	for (i=0; i<brHarmonika; i++) {
+		sin_sig(tmp_sig, duzina, znak*amplituda/(tmp*tmp), tmp);
+		dodajSignal(signal, duzina, tmp_sig);
+		tmp += 2;
+		znak *= -1;
+	}
+
+	pojacaj(signal, duzina, 8./(_PI*_PI));
+}
+
+/*
+ * Kvadrat
+ * https://en.wikipedia.org/wiki/Square_wave
+ */
+void kvad_sin(int signal[], int duzina, int amplituda, int brHarmonika) {
+	int i, tmp;
+	int tmp_sig[DUZ_SIG];
+
+	dcSignal(signal, duzina, 0);
+	tmp = 1;
+
+
+	for (i=0; i<brHarmonika; i++) {
+		sin_sig (tmp_sig, duzina, amplituda/tmp, tmp);
+		dodajSignal (signal, duzina, tmp_sig);
+		tmp += 2;
+	}
+}
+

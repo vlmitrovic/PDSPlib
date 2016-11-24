@@ -108,6 +108,10 @@ void vezba3() {
 	// Zadatak 3
 	// Rampa sacinjena od 10 sinusoida
 	ramp_sin(signal, DUZ_SIG, 1000, 10, RASTUCA);
+	// Trougao sacinjen od 10 sinusoida
+	trou_sin(signal, DUZ_SIG, 1000, 10);
+	// Kvadrat sacinjen od 10 sinusoida
+	kvad_sin(signal, DUZ_SIG, 1000, 10);
 
 	while(1);
 }

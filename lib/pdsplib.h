@@ -54,7 +54,7 @@ void kvad_sig(int signal[], int start, int duzina, int amplituda, int duty);
 void trap_sig(int signal[], int start, int duzina, int amplituda);
 void sin_sig (int signal[], int duzina, int amplituda, int brperioda);
 void ramp_sin(int signal[], int duzina, int amplituda, int brHarmonika, int smer);
-//void trou_sin(int signal[], int duzina, int amplituda, int brHarmonika);
-//void kvad_sin(int signal[], int duzina, int amplituda, int brHarmonika);
+void trou_sin(int signal[], int duzina, int amplituda, int brHarmonika);
+void kvad_sin(int signal[], int duzina, int amplituda, int brHarmonika);
 
 #endif /* PDSPLIB_H_ */
